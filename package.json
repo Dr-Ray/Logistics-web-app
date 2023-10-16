@@ -1,0 +1,23 @@
+{
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "name": "logistics",
+  "version": "1.0.0",
+  "description": "logistics platform for tracking packages realtime ",
+  "main": "server.js",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "mongoose": "^7.6.0",
+    "mysql": "^2.18.1",
+    "nodemon": "^3.0.1",
+    "socket.io": "^4.7.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "author": "Dr ray",
+  "license": "ISC"
+}
