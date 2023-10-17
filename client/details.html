@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logistics</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/css/font-awesome.css">
+    <script src="/socket.io/socket.io.min.js"></script>
+    <script src="/jquery.js"></script>
+</head>
+<body>
+    <div class="r-app">
+        <header>
+            <nav class="hr-row justify-between p-2">
+                <div class="tx-xl pointer">
+                    &#9776;
+                </div>
+                <div class="">
+                    <h2>Tracking</h2>
+                </div>
+                <div class="p-2 hr-row justify-between gap-2 ml-2 rounded-lg b-gray">
+                    <div>
+                        <i class="fa fa-location tx-xl"></i>
+                        California
+                        <i class="fa fa-chevron-down"></i>
+                    </div>
+                    <div>
+                        <i class="fa fa-bell tx-xl"></i>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        <div class="d-col h-full">
+            <div class="map" id="map"></div>
+            <div class="track curve-top b-gray p-2">
+                <h2>Package Details</h2>
+                <div class="track-box gap-1 my-2">
+                    <div class="p-2">
+                        <div class="row w-full gap-1 my-1 b-white p-2 rounded">
+                            <div class="w-full">
+                                <div class="w-full hr-row justify-between">
+                                    <p class="bold tx-xl">
+                                        <i class="c-red fa fa-location-arrow"></i> Lviv
+                                    </p>
+                                    <p>16 Oct, 19</p>
+                                </div>
+                                <div class="w-full hr-row justify-between">
+                                    <p class="bold tx-xl">
+                                        <i class="c-red fa fa-map-marker"></i> Odessa
+                                    </p>
+                                    <p>17 Oct, 19</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rounded row b-white gap-1 h-32 my-1">
+                            <div class="b-red w-64 centered rounded">
+                                <i class="c-white fa fa-2x fa-dashboard"></i>
+                            </div>
+                            <div class="ctnt">
+                                <div class="conta">
+                                    <p class="tx-xl bold">Mr Frank James</p>
+                                    <p>Logistics</p>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-center bold tx-lg b-red p-2 c-white">In transit <i class="fa fa-truck"></i></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+    <script>
+        $('#track').on('submit', (e)=> {
+            e.preventDefault();
+
+            $.ajax({
+                url: `/track/locate`,
+                type:'POST',
+                contentType:'application/json',
+                data:JSON.stringify({
+                    "tracking_number": e.target.trackingNumber.value
+                }),
+                beforeSend: ()=> {
+                    
+                },
+                success: (response)=> {
+                    console.log(response);
+                }
+            });
+        
+        });
+        const socket = io();
+        socket.on("me", (id)=> console.log(id));
+    </script>
+</body>
+</html>

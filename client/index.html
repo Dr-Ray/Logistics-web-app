@@ -3,9 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RayLabs Logistics | Home</title>
+    <title>Logistics</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/css/font-awesome.css">
+    <script src="/socket.io/socket.io.min.js"></script>
+    <script src="/jquery.js"></script>
+    <style>
+        .pointer {
+            cursor: pointer;
+        }
+        .r-app {
+            padding:0 10px;
+        }
+        .ml-1{
+            margin-left: 5px
+        }
+        .mt-2{
+            margin-top: 10px;
+        }
+        .jumbo-flex {
+            display: flex;
+            align-items: center;
+            flex:1 1 50%;
+        }
+    </style>
 </head>
-<body>
-    <h1>Client Page</h1>
+<body class="p-2">
+    <header>
+        <nav class="hr-row justify-between p-2">
+            <div class="tx-xl pointer">
+                &#9776;
+            </div>
+            <div class="px-2 hr-row justify-between gap-2 ml-2 rounded-lg b-gray">
+                <div>
+                    <i class="fa fa-location tx-xl"></i>
+                    California
+                    <i class="fa fa-chevron-down"></i>
+                </div>
+                <div>
+                    <i class="fa fa-bell tx-xl"></i>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="">
+        <div class="search-div">
+            <form id="track" class="hr-row">
+                <div class="w-full">
+                    <input type="search" name="trackingNumber" id="trackingNumber" placeholder="Enter tracking number" class="my-2 h-50 w-full px-4 br-5 b-gray" />
+                </div>
+                <button type="submit" class="ml-1 btn w-52 h-50 br-full btn-primary pointer" id="track">
+                    <i class="fa fa-2x fa-search"></i>
+                </button>
+            </form>
+        </div>
+        <div class="jumbotron jumbo-flex p-2">
+            <div class="w-full">
+                <h1>Deliver your package anywhere with ease</h1>
+                <button type="button" class="btn btn-red c-white p-2 rounded b-red mt-2">
+                    Find Service
+                </button>
+            </div>
+            <div class="">
+                <img src="/images/illustration.jpeg" alt="" style="height: auto;width: auto;"/>
+            </div>
+        </div>
+        <div class="service mt-2 my-2">
+            <h2>Book a Service</h2>
+            <div class="service-box">
+                <div class="service-item">
+                    <div class="text-center">
+                        <i class="fa fa-3x fa-wrench c-red"></i>
+                        <p>Vehicle Service</p>
+                    </div>
+                </div>
+                <div class="service-item">
+                    <div class="text-center">
+                        <i class="fa fa-3x fa-truck c-red"></i>
+                        <p>RSA Service</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="prev">
+            <h2>Near you</h2>
+            <div class="prev-box">
+                <div class="prev-item rounded-lg row b-gray">
+                    <div class="img"></div>
+                    <div class="ctnt p-2">
+                        <div class="hr-row justify-between">
+                            <div class="hr-row">
+                                <span><i class="fa fa-clock-o c-red"></i> 8am - 5pm</span>
+                            </div>
+                            <span class="hr-row"><i class="fa fa-star c-red"></i>&nbsp; 4.5</span>
+                        </div>
+                        <div class="conta mt-2">
+                            <p class="tx-lg bold">Gotham Car Reparation</p>
+                            <p>House 52 Bulevard Oslo Ohio</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer></footer>
+
+    <script>
+        $('#track').on('submit', (e)=> {
+            e.preventDefault();
+
+            $.ajax({
+                url: `/track`,
+                type:'POST',
+                contentType:'application/json',
+                data:JSON.stringify({
+                    "tracking_number": e.target.trackingNumber.value
+                }),
+                beforeSend: ()=> {
+                    $('#track').val("<i class='fa ")
+                },
+                success: (response)=> {
+                    if(response.success){
+                        window.location = response.redirect_link;
+                    }
+                }
+            });
+        
+        });
+    </script>
 </body>
 </html>
