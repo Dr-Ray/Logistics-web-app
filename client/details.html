@@ -8,6 +8,11 @@
     <link rel="stylesheet" href="/css/font-awesome.css">
     <script src="/socket.io/socket.io.min.js"></script>
     <script src="/jquery.js"></script>
+    <style>
+        .b-success {
+            background-color: rgb(4, 61, 4);
+        }
+    </style>
 </head>
 <body>
     <div class="r-app">
@@ -19,7 +24,7 @@
                 <div class="">
                     <h2>Tracking</h2>
                 </div>
-                <div class="p-2 hr-row justify-between gap-2 ml-2 rounded-lg b-gray">
+                <div class="px-2 hr-row justify-between gap-2 ml-2 rounded-lg b-gray">
                     <div>
                         <i class="fa fa-location tx-xl"></i>
                         California
@@ -38,7 +43,7 @@
                 <div class="track-box gap-1 my-2">
                     <div class="p-2">
                         <div class="row w-full gap-1 my-1 b-white p-2 rounded">
-                            <div class="w-full">
+                            <div class="w-full h-64 d-col justify-between">
                                 <div class="w-full hr-row justify-between">
                                     <p class="bold tx-xl">
                                         <i class="c-red fa fa-location-arrow"></i> Lviv
@@ -64,35 +69,40 @@
                                 </div>
                             </div>
                         </div>
-                        <p class="text-center bold tx-lg b-red p-2 c-white">In transit <i class="fa fa-truck"></i></p>
                     </div>
                 </div>
+            </div>
+            <div id="info-bar">
+                <p class="text-center bold tx-lg b-red p-2 c-white">In transit <i class="fa fa-truck"></i></p>
             </div>
         </div>
     
     </div>
     <script>
-        $('#track').on('submit', (e)=> {
-            e.preventDefault();
-
-            $.ajax({
-                url: `/track/locate`,
-                type:'POST',
-                contentType:'application/json',
-                data:JSON.stringify({
-                    "tracking_number": e.target.trackingNumber.value
-                }),
-                beforeSend: ()=> {
-                    
-                },
-                success: (response)=> {
-                    console.log(response);
-                }
-            });
-        
-        });
+        let tracking_id = window.location.search.split('=')[1];
         const socket = io();
-        socket.on("me", (id)=> console.log(id));
+
+        if(tracking_id) {
+            socket.emit('join', tracking_id);
+            socket.on('start_loc', (dloc) => {
+                console.log(dloc)
+            });
+
+            socket.on('current_loc', (dloc) => {
+                console.log(dloc);
+            });
+
+            socket.on('end_loc', (dloc) => {
+                console.log(dloc)
+            });
+
+            socket.on('package-arrived', (msg) => {
+                console.log(msg)
+                document.querySelector('#info-bar').innerHTML = `<p class="text-center bold tx-lg b-success p-2 c-white">${msg} <i class="fa fa-truck"></i></p>`;
+            });
+        }else{
+            window.location = '/clients';
+        }
     </script>
 </body>
 </html>

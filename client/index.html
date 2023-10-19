@@ -106,7 +106,6 @@
             </div>
         </div>
     </div>
-    <footer></footer>
 
     <script>
         $('#track').on('submit', (e)=> {
@@ -120,11 +119,11 @@
                     "tracking_number": e.target.trackingNumber.value
                 }),
                 beforeSend: ()=> {
-                    $('#track').val("<i class='fa ")
+                    $('#track').val("<i class='fa fa-spin fa-gear'><i>")
                 },
                 success: (response)=> {
                     if(response.success){
-                        window.location = response.redirect_link;
+                        window.location = `${response.redirect_link}?tid=${e.target.trackingNumber.value}`;
                     }
                 }
             });

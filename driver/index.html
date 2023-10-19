@@ -3,9 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RayLabs Logistics | Home</title>
+    <title>Logistics</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/css/font-awesome.css">
+    <script src="/socket.io/socket.io.min.js"></script>
+    <script src="/jquery.js"></script>
 </head>
 <body>
-    <h1>Driver Page</h1>
+    <div class="r-app">
+        <header>
+            <nav class="hr-row justify-between p-2">
+                <div class="tx-xl pointer">
+                    &#9776;
+                </div>
+                <div class="">
+                    <h2></h2>
+                </div>
+                <div class="p-2 hr-row justify-between gap-2 ml-2 rounded-lg b-gray">
+                    <div>
+                        <i class="fa fa-location tx-xl"></i>
+                        California
+                        <i class="fa fa-chevron-down"></i>
+                    </div>
+                    <div style="position: relative;">
+                        <span id="notif_count" class="centered rounded-full b-red c-white" style="border-radius: 50%; width: 15px;height: 15px;position: absolute;top:-5px;right: -15;"></span>
+                        <i class="fa fa-bell tx-xl"></i>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        <div class="d-col h-full">
+            <div class="map" id="map"></div>
+            <div class="track curve-top b-gray p-2">
+                <div class="track-box gap-1 my-2">
+                    <div class="p-2">
+                        <div class="hr-row w-full gap-1 my-1 b-white p-2 rounded">
+                            <button type="button" class="btn btn-red w-full c-white p-2 rounded b-red mt-2 h-32" id="start">
+                                Start
+                            </button>
+                            <button type="button" class="btn btn-red w-full c-white p-2 rounded b-red mt-2 h-32"  id="end">
+                                End
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="info-bar">
+                <p class="text-center bold tx-lg b-red p-2 c-white">Awaiting <i class="fa fa-truck"></i></p>
+            </div>
+        </div>
+    
+    </div>
+    <script>
+        const socket = io();
+        let sid, packages = [];
+        const driverID = 12345;
+
+        $(function() {
+            $.ajax({
+                url: `/driver/id`,
+                type:'POST',
+                contentType:'application/json',
+                data:JSON.stringify({
+                    "driver_id": driverID
+                }),
+                beforeSend: ()=> {
+                    $('#track').val("<i class='fa fa-spin fa-gear'><i>")
+                },
+                success: (response)=> {
+                    if(response.success){
+                        $('#notif_count').get(0).innerHTML = response.result.length;
+                        response.result.forEach(package => {
+                            packages.push(package.tracking_id);
+                        });
+                    
+                    }else{
+                        alert(response.message)
+                    }
+                }
+            });
+        })
+
+        // function watchLocation() {
+        //     if(navigator.geolocation) {
+        //         navigator.geolocation.watchPosition((position)=> {
+        //             console.log("GEtting real geolocation .....",position.coords.latitude, position.coords.longitude);
+                    
+        //             // send current location params to all rooms created with package id
+        //             socket.emit('intransit', packages, [position.coords.latitude, position.coords.longitude]);
+        //         }, (err)=>{
+        //             console.log(err.message)
+        //         })
+        //     }else{
+        //         console.log("Permission required");
+        //     }
+        // }
+
+        function watchLocation() {
+            setInterval(()=>{
+                // send current location params to all rooms created with package id
+                socket.emit('intransit', packages, [Math.floor(Math.random()*90), Math.floor(Math.random()*90)]);
+            }, 1000);
+        }
+
+
+        $('#start').on('click', (e)=> {
+            document.querySelector('#info-bar').innerHTML = `<p class="text-center bold tx-lg b-red p-2 c-white">In Transit <i class="fa fa-truck"></i></p>`;
+            
+            // create room with all package id
+            socket.emit('join', packages);
+            
+            // send current location params to all rooms created with package id
+            socket.emit('start_Loc', packages,[Math.floor(Math.random()*90), Math.floor(Math.random()*90)]);
+
+            // send end location params to all rooms created with package id
+            socket.emit('end_Loc', packages,[Math.floor(Math.random()*90), Math.floor(Math.random()*90)]);
+
+            $('#start').fadeOut(100);
+
+            // Watch driver current location and recurrently sends it to the client until stop
+            watchLocation();
+        });
+
+        $('#end').on('click', (e)=> {
+            document.querySelector('#info-bar').innerHTML = `<p class="text-center bold tx-lg b-success p-2 c-white">Ended <i class="fa fa-truck"></i></p>`;
+            
+            // Journey ended
+            socket.emit('destination-reached', packages, "Package arrived at destination");
+            
+            // Leave rooms 
+            socket.emit('leave', packages);
+        });
+    
+    </script>
 </body>
 </html>
