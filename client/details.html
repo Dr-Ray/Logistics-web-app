@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/css/font-awesome.css">
     <script src="/socket.io/socket.io.min.js"></script>
     <script src="/jquery.js"></script>
+    <script src='http://www.bing.com/api/maps/mapcontrol?callback=getMap' async></script>
     <style>
         .b-success {
             background-color: rgb(4, 61, 4);
@@ -46,15 +47,15 @@
                             <div class="w-full h-64 d-col justify-between">
                                 <div class="w-full hr-row justify-between">
                                     <p class="bold tx-xl">
-                                        <i class="c-red fa fa-location-arrow"></i> Lviv
+                                        <i class="c-red fa fa-location-arrow"></i> <span id="origin">Lviv</span>
                                     </p>
-                                    <p>16 Oct, 19</p>
+                                    <!-- <p>16 Oct, 19</p> -->
                                 </div>
                                 <div class="w-full hr-row justify-between">
                                     <p class="bold tx-xl">
-                                        <i class="c-red fa fa-map-marker"></i> Odessa
+                                        <i class="c-red fa fa-map-marker"></i> <span id="dest">Odessa</span>
                                     </p>
-                                    <p>17 Oct, 19</p>
+                                    <!-- <p>17 Oct, 19</p> -->
                                 </div>
                             </div>
                         </div>
@@ -63,17 +64,18 @@
                                 <i class="c-white fa fa-2x fa-dashboard"></i>
                             </div>
                             <div class="ctnt">
-                                <div class="conta">
-                                    <p class="tx-xl bold">Mr Frank James</p>
-                                    <p>Logistics</p>
-                                </div>
+                                <span>Driver Name: </span><span class="bold" id="driverName">Mr Frank James</span>
+                                <p>
+                                    <span>Receiver Name: </span><span class="bold" id="receiver">Mr Frank James</span>
+                                </p>
+                                <span>Sender Name: </span><span class="bold" id="sender">Mr Frank James</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div id="info-bar">
-                <p class="text-center bold tx-lg b-red p-2 c-white">In transit <i class="fa fa-truck"></i></p>
+                <p class="text-center bold tx-lg b-red p-2 c-white">Awaiting.... <i class="fa fa-truck"></i></p>
             </div>
         </div>
     
@@ -81,23 +83,76 @@
     <script>
         let tracking_id = window.location.search.split('=')[1];
         const socket = io();
+        var map, originPin, userPin, destPin;
+        
+        function getMap(){
+            map = new Microsoft.Maps.Map('#map', {
+                credentials: 'AnXDu7VUVu4HAlY0Te9zOTvQViDBLKmfE3I71n2sWe3uCgjpt5tZ1ufuKHtyO9OX',
+            });
+        };
+
+        
 
         if(tracking_id) {
             socket.emit('join', tracking_id);
-            socket.on('start_loc', (dloc) => {
-                console.log(dloc)
+
+            $.ajax({
+                url: `/package/id`,
+                type:'POST',
+                contentType:'application/json',
+                data:JSON.stringify({
+                    "tracking_id": tracking_id
+                }),
+                beforeSend: ()=> {
+                    $('#track').val("<i class='fa fa-spin fa-gear'><i>")
+                },
+                success: (response)=> {
+                    if(response.success){
+                        console.log(response);
+                        $('#notif_count').html(response.result.length);
+                        $('#driverName').html(response.result.driverName);
+                        $('#origin').html(response.result.orgLoc);
+                        $('#dest').html(response.result.destLoc);
+                        $('#receiver').html(response.result.reciever);
+                        $('#sender').html(response.result.sender);
+
+                        // // set origin pin on map to show the package start point
+                        // var orgPin =  new Microsoft.Maps.Location(response.result.orgcoords[0], response.orgcoords[0]);
+                        // originPin = new Microsoft.Maps.Pushpin(orgPin, { visible: false });
+                        // map.entities.push(originPin);
+
+                        // // set destination pin on map
+                        // var dstPin =  new Microsoft.Maps.Location(response.result.destcoords[0], response.destcoords[1]);
+                        // destPin = new Microsoft.Maps.Pushpin(dstPin, { visible: false });
+                        // map.entities.push(destPin);
+                        
+                    }else{
+                        alert(response.message);
+                        alert("Package not found incorrect tracking number");
+                        window.location = '/clients';
+                    }
+                }
+            });
+
+            socket.on("start_loc", (msg)=> {
+                document.querySelector('#info-bar').innerHTML = `<p class="text-center bold tx-lg b-red p-2 c-white">In Transit <i class="fa fa-truck"></i></p>`;
             });
 
             socket.on('current_loc', (dloc) => {
                 console.log(dloc);
-            });
+                var loc = new Microsoft.Maps.Location(dloc[0], dloc[1]);
+                userPin = new Microsoft.Maps.Pushpin(loc, { visible: false });
+                map.entities.push(userPin);
 
-            socket.on('end_loc', (dloc) => {
-                console.log(dloc)
-            });
+                //Update the user pushpin.
+                userPin.setLocation(loc);
+                userPin.setOptions({ visible: true });
 
+                //Center the map on the user's location.
+                map.setView({ center: loc });
+            });
+            
             socket.on('package-arrived', (msg) => {
-                console.log(msg)
                 document.querySelector('#info-bar').innerHTML = `<p class="text-center bold tx-lg b-success p-2 c-white">${msg} <i class="fa fa-truck"></i></p>`;
             });
         }else{

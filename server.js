@@ -32,13 +32,13 @@ io.on('connection', socket => {
         io.to(args).emit("current_loc", loc_args);
     });
 
-    socket.on('start_Loc', (args, loc_args) =>{
-        io.to(args).emit("start_loc", loc_args);
+    socket.on('start_Loc', (args, msg) =>{
+        console.log("sending data", msg);
+        io.to(args).emit("start_loc", msg);
     });
-
-    socket.on('end_Loc', (args, loc_args) =>{
-        io.to(args).emit("end_loc", loc_args);
-    });
+    // socket.on('end_Loc', (args, loc_args) =>{
+    //     io.to(args).emit("end_loc", loc_args);
+    // });
 
     socket.on('destination-reached', (args, msg) =>{
         io.to(args).emit("package-arrived", msg);
@@ -77,13 +77,54 @@ app.post('/track', (req, res)=> {
                 "result":err.message
             });
         }else{
-            // Render('')
             res.json({
                 "success":true,
-                "result":result[0],
                 "redirect_link": '/client/details'
             });
         }        
+    });
+});
+
+app.post('/package/id', (req, res)=> {
+    let tracking_id = req.body.tracking_id;
+
+    // Check database for package details;
+    var query ="SELECT * FROM `package` LEFT JOIN `company_branch` ON `package`.`origin`=`company_branch`.`branch_id` LEFT JOIN `driver` ON `package`.`driver_id` = `driver`.`consignee_id` WHERE `package`.`tracking_id` = ?;";
+    dbcon.query(query,[tracking_id], (err, result)=>{
+        // return if error message while fetching data
+        if(err) {
+            res.json({
+                "success":false,
+                "result":err.message
+            });
+        }else{
+            let data = {
+                "sender":result[0].sender,
+                "reciever":result[0].receiver,
+                "driverName":result[0].name,
+                "orgLoc":result[0].location,
+                "orgcoords":[result[0].latitude, result[0].longitude],
+                "destLoc":'',
+                "destcoords":[],
+            } 
+    
+            query ="SELECT * FROM `package` LEFT JOIN `company_branch` ON `package`.`destination`=`company_branch`.`branch_id` LEFT JOIN `driver` ON `package`.`driver_id` = `driver`.`consignee_id` WHERE `package`.`tracking_id` = ?;";
+            dbcon.query(query,[tracking_id], (err, result)=> {
+                if(err) {
+                    res.json({
+                        "success":false,
+                        "result":err.message
+                    });
+                }else{
+                    data.destLoc = result[0].location;
+                    data.destcoords.push(result[0].latitude, result[0].longitude);
+                    res.json({
+                        "success":true,
+                        "result": data
+                    });
+                }   
+            });
+        }  
     });
 });
 

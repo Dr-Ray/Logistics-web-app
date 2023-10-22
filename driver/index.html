@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/css/font-awesome.css">
     <script src="/socket.io/socket.io.min.js"></script>
     <script src="/jquery.js"></script>
+    <script src='http://www.bing.com/api/maps/mapcontrol?callback=GetMap' async></script>
 </head>
 <body>
     <div class="r-app">
@@ -58,6 +59,13 @@
         const socket = io();
         let sid, packages = [];
         const driverID = 12345;
+        var map, watchId, userPin;
+
+        function GetMap() {
+            map = new Microsoft.Maps.Map('#map', {
+                credentials: 'AnXDu7VUVu4HAlY0Te9zOTvQViDBLKmfE3I71n2sWe3uCgjpt5tZ1ufuKHtyO9OX'
+            });
+        }
 
         $(function() {
             $.ajax({
@@ -82,53 +90,65 @@
                     }
                 }
             });
-        })
+        });
 
-        // function watchLocation() {
-        //     if(navigator.geolocation) {
-        //         navigator.geolocation.watchPosition((position)=> {
-        //             console.log("GEtting real geolocation .....",position.coords.latitude, position.coords.longitude);
-                    
-        //             // send current location params to all rooms created with package id
-        //             socket.emit('intransit', packages, [position.coords.latitude, position.coords.longitude]);
-        //         }, (err)=>{
-        //             console.log(err.message)
-        //         })
-        //     }else{
-        //         console.log("Permission required");
-        //     }
-        // }
+        function StartTracking() {
+            //Add a pushpin to show the user's location.
+            userPin = new Microsoft.Maps.Pushpin(map.getCenter(), { visible: false });
+            map.entities.push(userPin);
 
-        function watchLocation() {
-            setInterval(()=>{
-                // send current location params to all rooms created with package id
-                socket.emit('intransit', packages, [Math.floor(Math.random()*90), Math.floor(Math.random()*90)]);
-            }, 1000);
+            //Watch the users location.
+            watchId = navigator.geolocation.watchPosition(UsersLocationUpdated);
+        }
+
+        function UsersLocationUpdated(position) {
+            var loc = new Microsoft.Maps.Location(position.coords.latitude, position.coords.longitude);
+
+            //Update the user pushpin.
+            userPin.setLocation(loc);
+            userPin.setOptions({ visible: true });
+
+            // Emit the drivers current location to the connected clients
+            socket.emit('intransit', packages, [position.coords.latitude, position.coords.longitude]);
+
+            //Center the map on the user's location.
+            map.setView({ center: loc });
+        }
+
+        function StopTracking() {
+            // Cancel the geolocation updates.
+            navigator.geolocation.clearWatch(watchId);
+
+            //Remove the user pushpin.
+            map.entities.clear();
         }
 
 
         $('#start').on('click', (e)=> {
             document.querySelector('#info-bar').innerHTML = `<p class="text-center bold tx-lg b-red p-2 c-white">In Transit <i class="fa fa-truck"></i></p>`;
-            
+
             // create room with all package id
             socket.emit('join', packages);
             
             // send current location params to all rooms created with package id
-            socket.emit('start_Loc', packages,[Math.floor(Math.random()*90), Math.floor(Math.random()*90)]);
-
-            // send end location params to all rooms created with package id
-            socket.emit('end_Loc', packages,[Math.floor(Math.random()*90), Math.floor(Math.random()*90)]);
+            socket.emit('start_Loc', packages,"Package in transit");
+           
+            // // send end location params to all rooms created with package id
+            // socket.emit('end_Loc', packages,[Math.floor(Math.random()*90), Math.floor(Math.random()*90)]);
 
             $('#start').fadeOut(100);
 
-            // Watch driver current location and recurrently sends it to the client until stop
-            watchLocation();
+            // Start tracking driver's current location and recurrently sends it to the client until stop
+            StartTracking();
         });
 
         $('#end').on('click', (e)=> {
             document.querySelector('#info-bar').innerHTML = `<p class="text-center bold tx-lg b-success p-2 c-white">Ended <i class="fa fa-truck"></i></p>`;
             
-            // Journey ended
+            // Stop tracking drivers location
+            StopTracking();
+
+            // Send a message to all clients
             socket.emit('destination-reached', packages, "Package arrived at destination");
             
             // Leave rooms 
