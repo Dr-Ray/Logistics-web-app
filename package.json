@@ -8,11 +8,17 @@
   "description": "logistics platform for tracking packages realtime ",
   "main": "server.js",
   "dependencies": {
+    "connect-sqlite3": "^0.9.13",
     "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-handlebars": "^7.1.2",
+    "express-session": "^1.17.3",
     "mongoose": "^7.6.0",
     "mysql": "^2.18.1",
     "nodemon": "^3.0.1",
+    "passport": "^0.6.0",
+    "passport-local": "^1.0.0",
     "socket.io": "^4.7.1"
   },
   "devDependencies": {

@@ -1,13 +1,18 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io')
-const cors = require('cors')
+const cors = require('cors');
+const { engine } = require('express-handlebars');
+const crypto = require('crypto');
+const path = require('path');
+const session = require('express-session');
+const dotenv = require('dotenv')
+
+dotenv.config();
 
 // Custom Imports
-// const { id_exists } = require('./utility');
-const dbcon = require('./database.js')
-const PORT  = require('./settings.js');
-const path = require('path');
+const dbcon = require('./database.js');
+const { allDrivers, allPackages, newPackage, updateStatus  } = require('./utility.js');
 
 // Functions
 const app = express();
@@ -17,11 +22,21 @@ app.use(cors());
 app.use(express.static(path.join(__dirname + '/public/')));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+app.use(session({
+    secret: 'keyboard cat',
+    cookie: {maxAge: 60000},
+    saveUninitialized: false,
+    resave: false
+}));
+
+app.engine('handlebars', engine());
+app.set('view engine', 'handlebars');
+app.set('views', './views');
 
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin:`http://localhost:${PORT}/`, 
+        origin:`http://localhost:${process.env.PORT}/`, 
         methods: ["GET", "POST"]
     }
 });
@@ -53,18 +68,18 @@ io.on('connection', socket => {
     })
 });
 
-
 // Routes
+// Client page loader links
 app.get('/', (req, res)=> {
     res.redirect('/client');
 });
 app.get('/client', (req, res)=> {
-    res.sendFile(__dirname+'/client/index.html');
+    res.render('client/home', {layout: false});
 });
-app.get('/client/details', (req, res)=> {
-    res.sendFile(__dirname+'/client/details.html');
+app.get('/client/details', (req, res)=> {;
+    res.render('client/details', {layout: false});
 });
-app.post('/track', (req, res)=> {
+app.post('/client/track', (req, res)=> {
     let tracking_id = req.body.tracking_number;
 
     // Check database if tracking number exists;
@@ -84,18 +99,17 @@ app.post('/track', (req, res)=> {
         }        
     });
 });
-
-app.post('/package/id', (req, res)=> {
+app.post('/client/package/id', (req, res)=> {
     let tracking_id = req.body.tracking_id;
 
     // Check database for package details;
     var query ="SELECT * FROM `package` LEFT JOIN `company_branch` ON `package`.`origin`=`company_branch`.`branch_id` LEFT JOIN `driver` ON `package`.`driver_id` = `driver`.`consignee_id` WHERE `package`.`tracking_id` = ?;";
     dbcon.query(query,[tracking_id], (err, result)=>{
         // return if error message while fetching data
-        if(err) {
+        if(result.length == 0) {
             res.json({
                 "success":false,
-                "result":err.message
+                "message":"ID deos not exist"
             });
         }else{
             let data = {
@@ -110,10 +124,10 @@ app.post('/package/id', (req, res)=> {
     
             query ="SELECT * FROM `package` LEFT JOIN `company_branch` ON `package`.`destination`=`company_branch`.`branch_id` LEFT JOIN `driver` ON `package`.`driver_id` = `driver`.`consignee_id` WHERE `package`.`tracking_id` = ?;";
             dbcon.query(query,[tracking_id], (err, result)=> {
-                if(err) {
+                if(result == 0) {
                     res.json({
                         "success":false,
-                        "result":err.message
+                        "result": "An error occured"
                     });
                 }else{
                     data.destLoc = result[0].location;
@@ -128,12 +142,26 @@ app.post('/package/id', (req, res)=> {
     });
 });
 
+// Driver Links
 app.get('/driver', (req, res)=> {
-    res.sendFile(__dirname+'/driver/index.html');
+    res.render('driver/login', {layout: false});
 });
+
+function driver_auth (req, res, next) {
+    if(req.session.user) {
+        next();
+    }else{
+        res.redirect('/driver');
+    }
+}
+
+app.get('/driver/home', driver_auth, (req, res)=> {
+    res.render('driver/home', {layout: false, "driver": req.session.user});
+});
+
 app.post('/driver/id', (req, res)=> {
     let id = req.body.driver_id;
-    var query = "SELECT * FROM package WHERE driver_id = ?";
+    var query = "SELECT * FROM package WHERE driver_id = ? AND status = 0";
     dbcon.query(query, [id], (err, result) => {
         if(err) {
             return res.json({
@@ -143,20 +171,72 @@ app.post('/driver/id', (req, res)=> {
         }else{
             return res.json({
                 "success":true,
-                "result":result,
+                "result":result
             });
         }     
             
     });
 
-    // Check database if id exist
-
 });
+app.post('/driver/login', (req, res)=> {
+    let { id, password } = req.body;
+    dbcon.query('SELECT * FROM driver WHERE consignee_id = ? AND password = ?', [ id, password ], (err, row)=> {
+        if (err) {
+            res.json({
+                "success":false,
+                "message":"Internal server error please try again later"
+            });
+        }else{
+            if(row.length == 0) { 
+                res.json({
+                    "success":false,
+                    "message":"Incorrect ID or Password."
+                });
+            }else{
+                req.session.user = row[0]
+                res.json({
+                    "success":true,
+                    "message":""
+                });
+            }
+        }
+        
+    })
+});
+
+// Admin links
 app.get('/admin', (req, res)=> {
-    res.sendFile(__dirname+'/admin/index.html');
+    res.render('admin/login', {layout: false});
+});
+function admin_auth (req, res, next) {
+    if(req.session.admin) {
+        next();
+    }else{
+        res.redirect('/admin');
+    }
+}
+app.post('/admin/login', (req, res)=> {
+    let { id, password } = req.body;
+    if(id === "admin" && password == "admin") { 
+        req.session.admin = {name:"admin"}
+        res.json({
+            "success":true,
+            "message":""
+        });
+    }else{
+        res.json({
+            "success":false,
+            "message":"Incorrect ID or Password."
+        });
+    }
 });
 
+app.get('/admin/home', admin_auth, (req, res)=> {
+    const drivers = allDrivers(dbcon);
+    const { packages, completed } = allPackages(dbcon);
+    res.render('admin/home', {layout: false, packages:packages, completed:completed, drivers:drivers});
+});
 
-server.listen(PORT, ()=> {
-    console.log(`server is listening at port ${PORT}`);
+server.listen(process.env.PORT, ()=> {
+    console.log(`server is listening at port ${process.env.PORT}`);
 });

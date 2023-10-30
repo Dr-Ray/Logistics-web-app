@@ -15,7 +15,4 @@ conn.connect(function(err) {
     }
 });
 
-    let tracking_id = "232456456564";
-    
-
 module.exports = conn;
