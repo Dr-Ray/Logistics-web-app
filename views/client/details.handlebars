@@ -116,20 +116,16 @@
 
                             // set origin pin on map to show the package start point
                             var orgPin = new Microsoft.Maps.Location(response.result.orgcoords[0], response.result.orgcoords[1]);
-                            originPin = new Microsoft.Maps.Pushpin(orgPin);
-                            originPin.metadata = {
-                                title: 'Origin',
-                                description: 'Package was brought here'
-                            };
+                            originPin = new Microsoft.Maps.Pushpin(orgPin, {
+                                title: 'Origin'
+                            });
                             map.entities.push(originPin);
 
                             // // set destination pin on map
                             var dstPin =  new Microsoft.Maps.Location(response.result.destcoords[0], response.result.destcoords[1]);
-                            destPin = new Microsoft.Maps.Pushpin(dstPin);
-                            originPin.metadata = {
-                                title: 'Destination',
-                                description: 'Package destination is here'
-                            };
+                            destPin = new Microsoft.Maps.Pushpin(dstPin, {
+                                title: 'Destination'
+                            });
                             map.entities.push(destPin);
 
                             if(response.result.status != 0) {
@@ -148,7 +144,7 @@
                 });
 
                 socket.on('current_loc', (dloc) => {
-                    console.log(dloc);
+                    document.querySelector('#info-bar').innerHTML = `<p class="text-center bold tx-lg b-red p-2 c-white">In Transit <i class="fa fa-truck"></i></p>`;
                     var loc = new Microsoft.Maps.Location(dloc[0], dloc[1]);
                     userPin = new Microsoft.Maps.Pushpin(loc, { 
                         icon: '/images/icons8-bus-16.png',

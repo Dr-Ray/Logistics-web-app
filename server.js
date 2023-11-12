@@ -12,7 +12,6 @@ dotenv.config();
 
 // Custom Imports
 const dbcon = require('./database.js');
-const { allDrivers, allPackages, newPackage, updateStatus  } = require('./utility.js');
 
 // Functions
 const app = express();
@@ -24,7 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(session({
     secret: 'keyboard cat',
-    cookie: {maxAge: 60000},
+    cookie: {maxAge: 1000*60*60},
     saveUninitialized: false,
     resave: false
 }));
@@ -111,8 +110,9 @@ app.post('/client/package/id', (req, res)=> {
                 "success":false,
                 "message":"ID deos not exist"
             });
-        }else{
+        }else{ 
             let data = {
+                "status":result[0].status,
                 "sender":result[0].sender,
                 "reciever":result[0].receiver,
                 "driverName":result[0].name,
@@ -146,7 +146,6 @@ app.post('/client/package/id', (req, res)=> {
 app.get('/driver', (req, res)=> {
     res.render('driver/login', {layout: false});
 });
-
 function driver_auth (req, res, next) {
     if(req.session.user) {
         next();
@@ -154,11 +153,9 @@ function driver_auth (req, res, next) {
         res.redirect('/driver');
     }
 }
-
 app.get('/driver/home', driver_auth, (req, res)=> {
     res.render('driver/home', {layout: false, "driver": req.session.user});
 });
-
 app.post('/driver/id', (req, res)=> {
     let id = req.body.driver_id;
     var query = "SELECT * FROM package WHERE driver_id = ? AND status = 0";
@@ -230,11 +227,109 @@ app.post('/admin/login', (req, res)=> {
         });
     }
 });
-
 app.get('/admin/home', admin_auth, (req, res)=> {
-    const drivers = allDrivers(dbcon);
-    const { packages, completed } = allPackages(dbcon);
-    res.render('admin/home', {layout: false, packages:packages, completed:completed, drivers:drivers});
+    res.render('admin/home', {layout: false, });
+});
+
+// admin functions
+app.post('/admin/update_status', admin_auth, (req, res)=> {
+    let { data } = req.body, ress = [],errr={};
+    console.log(data);
+    for(let i=0;i<data.length;i++) {
+        let query = "UPDATE `package` SET `status` = 1 WHERE `package`.`tracking_id` = ?";
+        dbcon.query(query, [data[i]], (err, result) => {
+            if(err){
+                return res.json({success:false, message:err.sqlMessage});
+            }else{
+                if(result.affectedRows) {
+                    ress.push(result.affectedRows)
+                }else{
+                    errr['message'+i] = result.message;
+                }
+            }
+            console.log(ress, errr);
+        })
+    }
+    return res.status(200).json({success:true});
+});
+app.post('/admin/delete_package', admin_auth, (req, res)=> {
+    let { data } = req.body, ress = [],err={};
+    for(let i=0;i<data.length;i++) {
+        let query = "DELETE FROM package WHERE `package`.`tracking_id` = ?";
+        dbcon.query(query, [data[i]], (err, result) => {
+            if(err){
+                return res.json({success:false, message:err.sql});
+            }else{
+                if(result.affectedRows) {
+                    ress.push(result.affectedRows)
+                }else{
+                    err['message'+i] = result.message;
+                }
+            }
+        })
+    }
+    return res.status(200).json({success:true});
+})
+app.post('/admin/alldrivers', admin_auth,(req, res)=> {
+    dbcon.query("SELECT name, consignee_id, status FROM `driver` LEFT JOIN `package` ON `driver`.consignee_id = `package`.driver_id", (err, result) => {
+        if(err){
+            return res.json({success:false, message:err.sqlMessage});
+        }else{
+            if(result.length > 0) {
+                return res.json({"response": result});
+            }else{
+                return res.json({success:false,  message:result.message});
+            }
+        }
+    });
+});
+app.post('/admin/allpackages', admin_auth, (req, res)=> {
+    dbcon.query("SELECT * FROM package", (err, result) => {
+        if(err){
+            return res.json({success:false, message:err.sqlMessage});
+        }else{
+            if(result.length > 0) {
+                return res.json({
+                    "packages":result,
+                    "completed":result.filter(elem => elem.status != 0)
+                });
+            }else{
+                return res.json({success:false,  message:result.message});
+            }
+        }
+    });
+});
+app.post('/admin/allbranch', admin_auth, (req, res)=> {
+    dbcon.query("SELECT * FROM company_branch", (err, result) => {
+        if(err){
+            return res.json({success:false, message:err.sqlMessage});
+        }else{
+            if(result.length > 0) {
+                return res.json({
+                    "allbranch":result
+                });
+            }else{
+                return res.json({success:false,  message:result.message});
+            }
+        }
+    });
+});
+app.post('/admin/newpackage', admin_auth, (req, res)=> {
+    let {details, sender, receiver, sender_phone, receiver_phone, driver_id, origin, destination} = req.body;
+    let tracking_id = `${Math.floor(Math.random()*9999)+1000}${Math.floor(Math.random()*9999)+1000}${Math.floor(Math.random()*9999)+1000}`;
+    let args = [details, sender, receiver, sender_phone, receiver_phone, driver_id, tracking_id, origin, destination];
+    var query = "INSERT INTO `package` (`details`, `sender`, `receiver`, `sender_phone`, `receiver_phone`, `driver_id`, `tracking_id`, `origin`, `destination`) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    dbcon.query(query, args, (err, result) => {
+        if(err){
+            return res.json({success:false, message:err.sqlMessage});
+        }else{
+            if(result.insertId) {
+                return res.json({success:true, id:result.insertId});
+            }else{
+                return res.json({success:false, message:result.message});
+            }
+        }
+    });
 });
 
 server.listen(process.env.PORT, ()=> {
