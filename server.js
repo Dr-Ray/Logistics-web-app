@@ -43,16 +43,13 @@ const io = new Server(server, {
 io.on('connection', socket => {
 
     socket.on('intransit', (args, loc_args)=>{
+        console.log("sending data", loc_args);
         io.to(args).emit("current_loc", loc_args);
     });
 
     socket.on('start_Loc', (args, msg) =>{
-        console.log("sending data", msg);
         io.to(args).emit("start_loc", msg);
     });
-    // socket.on('end_Loc', (args, loc_args) =>{
-    //     io.to(args).emit("end_loc", loc_args);
-    // });
 
     socket.on('destination-reached', (args, msg) =>{
         io.to(args).emit("package-arrived", msg);
@@ -70,6 +67,7 @@ io.on('connection', socket => {
 // Routes
 // Client page loader links
 app.get('/', (req, res)=> {
+    // res.sendFile(__dirname+'/views/client/index-2.html')
     res.redirect('/client');
 });
 app.get('/client', (req, res)=> {
@@ -284,7 +282,7 @@ app.post('/admin/alldrivers', admin_auth,(req, res)=> {
     });
 });
 app.post('/admin/allpackages', admin_auth, (req, res)=> {
-    dbcon.query("SELECT * FROM package", (err, result) => {
+    dbcon.query("SELECT * FROM package ORDER BY id DESC", (err, result) => {
         if(err){
             return res.json({success:false, message:err.sqlMessage});
         }else{

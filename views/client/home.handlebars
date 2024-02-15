@@ -1,113 +1,300 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logistics</title>
-    <link rel="stylesheet" href="/styles.css">
-    <link rel="stylesheet" href="/css/font-awesome.css">
-    <script src="/socket.io/socket.io.min.js"></script>
-    <script src="/jquery.js"></script>
-    <style>
-        .pointer {
-            cursor: pointer;
-        }
-        .r-app {
-            padding:0 10px;
-        }
-        .ml-1{
-            margin-left: 5px
-        }
-        .mt-2{
-            margin-top: 10px;
-        }
-        .jumbo-flex {
-            display: flex;
-            align-items: center;
-            flex:1 1 50%;
-        }
-    </style>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Logistics | Home</title>
+	<link rel="shortcut icon" href="/cryptoma/img/favicon.png" type="image/x-icon">
+    <!-- Bootstrap Core CSS -->
+    <link href="/cryptoma/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Animate CSS -->
+	<link href="/cryptoma/css/animate.css" rel="stylesheet">
+	<!-- Font-awesome -->
+	<link rel="stylesheet" href="/cryptoma/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Flaticon -->
+	<link rel="stylesheet" href="/cryptoma/fonts/flaticon/css/flaticon.css">
+	<!-- Google font-->
+	<link href="https://fonts.googleapis.com/css?family=Poppins:300,400,400i,500,600,700,800,900" rel="stylesheet">
+	<!-- Main CSS -->
+	<link href="/cryptoma/style.css" rel="stylesheet">
+	
 </head>
-<body class="p-2">
-    <header>
-        <nav class="hr-row justify-between p-2">
-            <div class="tx-xl pointer">
-                &#9776;
-            </div>
-            <div class="px-2 hr-row justify-between gap-2 ml-2 rounded-lg b-gray">
-                <div>
-                    <i class="fa fa-location tx-xl"></i>
-                    California
-                    <i class="fa fa-chevron-down"></i>
-                </div>
-                <div>
-                    <i class="fa fa-bell tx-xl"></i>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="">
-        <div class="search-div">
-            <form id="track" class="hr-row">
-                <div class="w-full">
-                    <input type="search" name="trackingNumber" id="trackingNumber" placeholder="Enter tracking number" class="my-2 h-50 w-full px-4 br-5 b-gray" />
-                </div>
-                <button type="submit" class="ml-1 btn w-52 h-50 br-full btn-primary pointer" id="track">
-                    <i class="fa fa-2x fa-search"></i>
-                </button>
-            </form>
-        </div>
-        <div class="jumbotron jumbo-flex p-2">
-            <div class="w-full">
-                <h1>Deliver your package anywhere with ease</h1>
-                <button type="button" class="btn btn-red c-white p-2 rounded b-red mt-2">
-                    Find Service
-                </button>
-            </div>
-            <div class="">
-                <img src="/images/illustration.jpeg" alt="" style="height: auto;width: auto;"/>
-            </div>
-        </div>
-        <div class="service mt-2 my-2">
-            <h2>Book a Service</h2>
-            <div class="service-box">
-                <div class="service-item">
-                    <div class="text-center">
-                        <i class="fa fa-3x fa-wrench c-red"></i>
-                        <p>Vehicle Service</p>
-                    </div>
-                </div>
-                <div class="service-item">
-                    <div class="text-center">
-                        <i class="fa fa-3x fa-truck c-red"></i>
-                        <p>RSA Service</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="prev">
-            <h2>Near you</h2>
-            <div class="prev-box">
-                <div class="prev-item rounded-lg row b-gray">
-                    <div class="img"></div>
-                    <div class="ctnt p-2">
-                        <div class="hr-row justify-between">
-                            <div class="hr-row">
-                                <span><i class="fa fa-clock-o c-red"></i> 8am - 5pm</span>
-                            </div>
-                            <span class="hr-row"><i class="fa fa-star c-red"></i>&nbsp; 4.5</span>
-                        </div>
-                        <div class="conta mt-2">
-                            <p class="tx-lg bold">Gotham Car Reparation</p>
-                            <p>House 52 Bulevard Oslo Ohio</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <script>
+<body data-spy="scroll" data-target="#main-nav" data-offset="91">
+	<!--Preload-->
+	<div class="preloader">
+		<div class="preloader_image">
+			<div class="sk-double-bounce">
+				<div class="sk-child sk-double-bounce1"></div>
+				<div class="sk-child sk-double-bounce2"></div>
+			</div>
+		</div>
+	</div>
+	
+	<nav class="navbar navbar-expand-lg fixed-top bg-white">
+		<div class="container">
+			<a class="navbar-brand" href="/">
+				<img src="/cryptoma/img/loo.png" alt="Logo">
+			</a>
+			<button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="main-nav">
+				<ul class="navbar-nav ml-auto">
+					<li class="nav-item">
+						<a class="nav-link" href="#home">Home</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#about-us">About Us</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#track">Track package</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#faqs">Faqs</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#contact">Contact</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<!-- end nav -->
+	
+	<section id="home" class="no-spacing">
+		<div class="circle1"></div>
+		<div class="circle2"></div>
+		<div class="circle3"></div>
+		<div class="circle4"></div>
+		<div class="banner-caption">
+			<div class="container">
+				<div class="row align-items-center" style="display: flex;justify-content: space-between;min-height: 450px;">
+					<div class="col-md-6">
+						<div class="hero-text">
+							<h1 class="animated fadeInLeft">Deliver your package anywhere with ease</h1>
+							<p class="animated fadeInLeft">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae tortor arcu. Vestibulum ac ex lacinia. Nulla molestie nunc varius.</p>
+							<a href="#" class="btn btn-primary animated fadeInLeft">Package tracking</a>
+							<a href="#" class="btn btn-default animated fadeInLeft">Fast delivery</a>
+						</div>
+					</div>
+					<div class="col-md-6 d-sm-block d-md-block d-lg-block">
+						<div class="search-div animated fadeInRight">
+							<form id="track" class="hr-row">
+								<div class="form-group">
+									<input placeholder="Enter Tracking Number" id="trackingNumber" class="form-control animated fadeInRight" name="trackingNumber" type="search" required data-error="Please enter trakcing id">
+									<div class="help-block with-errors"></div>
+								</div>
+								<button type="submit" class="btn btn-primary animated fadeInRight">Track pacakge</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- end home -->
+	
+	<section class="section-spacing" id="about-us">
+		<div class="container">
+			<div class="row mb-120 align-items-center">
+				<div class="col-md-6">
+					<div class="img-block wow fadeIn moveDown tilt-img text-center" data-wow-delay="0.2s">
+						<img src="/cryptoma/img/about-us/1.png" alt="">
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="text-block wow fadeIn" data-wow-delay="0.2s">
+						<h2>About us</h2>
+						<p>
+                            Lorem ipsum dolor sit amet consectetur adipisicing elit. 
+                            Perspiciatis accusantium molestiae voluptatum dolorem tempore, 
+                            sed magnam eius unde repudiandae. Reiciendis, optio mollitia? 
+                            Dolorum voluptates reiciendis odit ex, dolores saepe corporis.
+                        </p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- end about-us -->
+	
+	<section id="faqs" class="section-spacing inverse-bg">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-6">
+					<div class="faqs-img wow fadeIn text-center moveDown3 tilt-img">
+						<img src="/cryptoma/img/faqs/1.png" alt="">
+					</div>
+				</div>
+				
+				<div class="col-md-6">
+                    <h2>Frequently Asked Questions?</h2>
+					<div class="accordion" id="faqs-content">
+						<div class="card">
+							<div class="card-header">
+								<h4 data-toggle="collapse" data-target="#item1">What cryptocurrencies can I use to purchase?</h4>
+							</div>
+						
+							<div id="item1" class="collapse show" data-parent="#faqs-content">
+								<div class="card-body">
+									<p>Artificial intelligence based on neural networks, built using the newest algorithms for self learning, analysis and comparison of neurons in which will be self-corrected.</p>
+									<p>Artificial intelligence based on neural networks, built using the newest algorithms for self learning, analysis and comparison of neurons in which will be self-corrected.</p>
+								</div>
+							</div>
+						</div>
+						
+						<div class="card">
+							<div class="card-header">
+								<h4 class="collapsed" data-toggle="collapse" data-target="#item2">How do I benefit from the ICO token?</h4>
+							</div>
+							<div id="item2" class="collapse" data-parent="#faqs-content">
+								<div class="card-body">
+									<p>Artificial intelligence based on neural networks, built using the newest algorithms for self learning, analysis and comparison of neurons in which will be self-corrected.</p>
+									<p>Artificial intelligence based on neural networks, built using the newest algorithms for self learning, analysis and comparison of neurons in which will be self-corrected.</p>
+								</div>
+							</div>
+						</div>
+						
+						<div class="card">
+							<div class="card-header">
+								<h4 class="collapsed" data-toggle="collapse" data-target="#item3">What curling irons are the best ones</h4>
+							</div>
+							<div id="item3" class="collapse" data-parent="#faqs-content">
+								<div class="card-body">
+									<p>Artificial intelligence based on neural networks, built using the newest algorithms for self learning, analysis and comparison of neurons in which will be self-corrected.</p>
+									<p>Artificial intelligence based on neural networks, built using the newest algorithms for self learning, analysis and comparison of neurons in which will be self-corrected.</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- end faqs -->
+	
+	<section class="section-spacing" id="contact">
+        <h2 class="text-center">Contact Us</h2>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-4">
+					<div class="contact-info text-center wow fadeIn">
+						<i class="fa fa-phone-square"></i>
+						<h3>Make a Call</h3>
+						<p><a href="tel:+61383766284">+61 3 8376 6284</a><br><a href="tel:+61383766284">+61 3 8376 6284</a></p>
+					</div>
+				</div>
+				
+				<div class="col-md-4">
+					<div class="contact-info text-center wow fadeIn">
+						<i class="fa fa-envelope-open-o"></i>
+						<h3>Send a Mail</h3>
+						<p><a href="mailto:info@example.com">info@example.com</a><br><a href="mailto:info@example.com">info@example.com</a></p>
+					</div>
+				</div>
+				
+				<div class="col-md-4">
+					<div class="contact-info text-center wow fadeIn">
+						<i class="fa fa-map-marker"></i>
+						<h3>Find Us</h3>
+						<p>123 West Street, Melbourne <br>Victoria 3000 Australia</p>
+					</div>
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-12">
+					<div class="section-title text-center">
+						<h2><span>Have Any Question?</span></h2>
+					</div>
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-12 col-lg-8 offset-lg-2">
+					<form id="contactForm" class="contact-form wow fadeIn" data-toggle="validator" method="post">
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<input placeholder="First Name" id="fname" class="form-control" name="fname" type="text" required data-error="Please enter your first name">
+									<div class="help-block with-errors"></div>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<input placeholder="Last Name" id="lname" class="form-control" name="lname" type="text">
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<input placeholder="Email Address" id="email" class="form-control" name="email" type="email" required data-error="Please enter your valid email address"> 
+							<div class="help-block with-errors"></div>
+						</div>
+						
+						<div class="form-group">
+							<textarea placeholder="Your Comments" id="message" cols="20" rows="8" class="form-control" required data-error="Please enter your comments"></textarea>
+							<div class="help-block with-errors"></div>
+						</div>
+						<div class="text-center">
+							<input value="Send Message" name="submit" class="btn btn-primary" type="submit">
+							<div id="msgSubmit" class="hidden"></div>
+						</div>
+					</form>
+				</div>
+				
+			</div>
+			
+		</div>
+	</section>
+	<!-- end contact -->
+	
+	<footer id="footer">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<ul class="social-media">
+						<li><a href="#"><i class="fa fa-facebook-square"></i></a></li>
+						<li><a href="#"><i class="fa fa-twitter-square"></i></a></li>
+						<li><a href="#"><i class="fa fa-linkedin-square"></i></a></li>
+						<li><a href="#"><i class="fa fa-instagram"></i></a></li>
+					</ul>
+				</div>
+				<div class="col-md-12">
+					<div class="copyright text-center">
+						<p>&copy; copyright 2019 | All right reserved.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</footer>
+	
+	
+	<!-- Bact to top -->
+	<div class="back-top">
+		<a href="#">
+			<span class="icon-bg"></span>
+			<span class="back-to-top-text">Top</span>
+			<i class="fa fa-angle-up"></i>
+		</a>
+	</div>
+	
+    <!-- jQuery -->
+    <script src="/cryptoma/js/jquery-3.3.1.min.js"></script>
+	<script src="/cryptoma/js/popper.min.js"></script>
+    <script src="/cryptoma/js/bootstrap.min.js"></script>
+    <script src="/cryptoma/js/jquery.easing.min.js"></script>
+	<script src="/cryptoma/js/tilt.jquery.js"></script>
+	<script src="/cryptoma/js/wow.js"></script>
+	<script src="/cryptoma/js/SmoothScroll.js"></script>
+	<script src="mail//cryptoma/js/form-validator.min.js"></script>
+	<script src="mail//cryptoma/js/contact-form-script.js"></script>
+    <script src="/cryptoma/js/script.js"></script>
+
+	<script>
         $('#track').on('submit', (e)=> {
             e.preventDefault();
 
@@ -130,5 +317,6 @@
         
         });
     </script>
+	
 </body>
 </html>

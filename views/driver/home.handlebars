@@ -100,22 +100,16 @@
                 watchId = navigator.geolocation.watchPosition(UsersLocationUpdated);
             }
 
-             
-
             function UsersLocationUpdated(position) {
-                var sim  = {
-                    latitude: (Math.random()*11) + 4,
-                    longitude:(Math.random()*16) + 3
-                }
-                console.log(sim.latitude, sim.longitude)
-                var loc = new Microsoft.Maps.Location(sim.latitude, sim.longitude);
+                console.log(position.coords.latitude, position.coords.longitude)
+                var loc = new Microsoft.Maps.Location(position.coords.latitude, position.coords.longitude);
 
                 //Update the user pushpin.
                 userPin.setLocation(loc);
                 userPin.setOptions({ visible: true });
 
                 // Emit the drivers current location to the connected clients
-                socket.emit('intransit', packages, [sim.latitude+1.2, sim.longitude+1.2]);
+                socket.emit('intransit', packages, [position.coords.latitude, position.coords.longitude]);
 
                 //Center the map on the user's location.
                 map.setView({ center: loc });
@@ -138,9 +132,6 @@
                 
                 // send current location params to all rooms created with package id
                 socket.emit('start_Loc', packages,"Package in transit");
-            
-                // // send end location params to all rooms created with package id
-                // socket.emit('end_Loc', packages,[Math.floor(Math.random()*90), Math.floor(Math.random()*90)]);
 
                 $('#start').fadeOut(100);
 

@@ -4,41 +4,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Logistics | Track package</title>
-    <link rel="stylesheet" href="/styles.css">
-    <link rel="stylesheet" href="/css/font-awesome.css">
+
+    <link rel="shortcut icon" href="/cryptoma/img/favicon.png" type="image/x-icon">
+    <!-- Bootstrap Core CSS -->
+    <link href="/cryptoma/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Animate CSS -->
+	<link href="/cryptoma/css/animate.css" rel="stylesheet">
+	<!-- Font-awesome -->
+	<link rel="stylesheet" href="/cryptoma/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Flaticon -->
+	<link rel="stylesheet" href="/cryptoma/fonts/flaticon/css/flaticon.css">
+	<!-- Google font-->
+	<link href="https://fonts.googleapis.com/css?family=Poppins:300,400,400i,500,600,700,800,900" rel="stylesheet">
+	<!-- Main CSS -->
+	<link href="/styles.css" rel="stylesheet">
+	<link href="/cryptoma/style.css" rel="stylesheet">
+
     <script src="/socket.io/socket.io.min.js"></script>
     <script src="/jquery.js"></script>
     <script src='http://www.bing.com/api/maps/mapcontrol?callback=getMap'></script>
-    
-    <style>
-        .b-success {
-            background-color: rgb(4, 61, 4);
-        }
-    </style>
 </head>
-<body>
+<body data-spy="scroll" data-target="#main-nav" data-offset="91">
     <div class="r-app">
-        <!-- <a target="_blank" href="https://icons8.com/icon/J5qM4gKHqcW1/bus">Bus</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a> -->
+        <!--Preload-->
+        <div class="preloader">
+            <div class="preloader_image">
+                <div class="sk-double-bounce">
+                    <div class="sk-child sk-double-bounce1"></div>
+                    <div class="sk-child sk-double-bounce2"></div>
+                </div>
+            </div>
+        </div>
         <header>
-            <nav class="hr-row justify-between p-2">
-                <div class="tx-xl pointer">
-                    &#9776;
-                </div>
-                <div class="">
-                    <h2>Tracking</h2>
-                </div>
-                <div class="px-2 hr-row justify-between gap-2 ml-2 rounded-lg b-gray">
-                    <div>
-                        <i class="fa fa-location tx-xl"></i>
-                            California
-                        <i class="fa fa-chevron-down"></i>
-                    </div>
-                    <div>
-                        <i class="fa fa-bell tx-xl"></i>
+            <nav class="navbar navbar-expand-lg fixed-top bg-white">
+                <div class="container">
+                    <a class="navbar-brand" href="/">
+                        <img src="/cryptoma/img/loo.png" alt="Logo">
+                    </a>
+                    <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="main-nav">
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/client/#home">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/client/#about-us">About Us</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/client/#track">Track package</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/client/#faqs">Faqs</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/client/#contact">Contact</a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </nav>
+            <!-- end nav -->
         </header>
+
         <div class="d-col h-full">
             <div class="map" id="map"></div>
             <div class="track curve-top b-gray p-2">
@@ -48,28 +77,28 @@
                         <div class="row w-full gap-1 my-1 b-white p-2 rounded">
                             <div class="w-full h-64 d-col justify-between">
                                 <div class="w-full hr-row justify-between">
-                                    <p class="bold tx-xl">
-                                        <i class="c-red fa fa-location-arrow"></i> <span id="origin"></span>
-                                    </p>
+                                    <div class="bold">
+                                        Origin <i class="c-red fa fa-location-arrow"></i> <span id="origin"></span>
+                                    </div>
                                     <!-- <p>16 Oct, 19</p> -->
                                 </div>
                                 <div class="w-full hr-row justify-between">
-                                    <p class="bold tx-xl">
-                                        <i class="c-red fa fa-map-marker"></i> <span id="dest"></span>
-                                    </p>
+                                    <div class="bold">
+                                        Destination <i class="c-red fa fa-map-marker"></i> <span id="dest"></span>
+                                    </div>
                                     <!-- <p>17 Oct, 19</p> -->
                                 </div>
                             </div>
                         </div>
-                        <div class="rounded row b-white gap-1 h-32 my-1">
+                        <div class="rounded row b-white gap-1 my-1">
                             <div class="b-red w-64 centered rounded">
                                 <i class="c-white fa fa-2x fa-dashboard"></i>
                             </div>
                             <div class="ctnt">
                                 <span>Driver Name: </span><span class="bold" id="driverName"></span>
-                                <p>
+                                <div>
                                     <span>Receiver Name: </span><span class="bold" id="receiver"></span>
-                                </p>
+                                </div>
                                 <span>Sender Name: </span><span class="bold" id="sender"></span>
                             </div>
                         </div>
@@ -82,6 +111,16 @@
         </div>
     
     </div>
+
+    <script src="/cryptoma/js/popper.min.js"></script>
+    <script src="/cryptoma/js/bootstrap.min.js"></script>
+    <script src="/cryptoma/js/jquery.easing.min.js"></script>
+	<script src="/cryptoma/js/tilt.jquery.js"></script>
+	<script src="/cryptoma/js/wow.js"></script>
+	<script src="/cryptoma/js/SmoothScroll.js"></script>
+	<script src="mail//cryptoma/js/form-validator.min.js"></script>
+	<script src="mail//cryptoma/js/contact-form-script.js"></script>
+    <script src="/cryptoma/js/script.js"></script>
     <script>
         let tracking_id = window.location.search.split('=')[1];
         const socket = io();
@@ -91,6 +130,7 @@
             map = new Microsoft.Maps.Map('#map', {
                 credentials: 'AnXDu7VUVu4HAlY0Te9zOTvQViDBLKmfE3I71n2sWe3uCgjpt5tZ1ufuKHtyO9OX',
             });
+            var loc = map.getCenter();
 
             if(tracking_id) {
                 socket.emit('join', tracking_id);
@@ -121,6 +161,12 @@
                             });
                             map.entities.push(originPin);
 
+                            userPin = new Microsoft.Maps.Pushpin(orgPin, { 
+                                icon: '/images/icons8-bus-16.png',
+                                visible: true
+                            });
+
+
                             // // set destination pin on map
                             var dstPin =  new Microsoft.Maps.Location(response.result.destcoords[0], response.result.destcoords[1]);
                             destPin = new Microsoft.Maps.Pushpin(dstPin, {
@@ -129,7 +175,7 @@
                             map.entities.push(destPin);
 
                             if(response.result.status != 0) {
-                                document.querySelector('#info-bar').innerHTML = `<p class="text-center bold tx-lg b-success p-2 c-white">Pacakage has arrived<i class="fa fa-truck"></i></p>`;
+                                document.querySelector('#info-bar').innerHTML = `<p class="text-center bold tx-lg btn-success p-2 c-white">Pacakage has arrived<i class="fa fa-truck"></i></p>`;
                             }
                             
                         }else{
@@ -144,24 +190,23 @@
                 });
 
                 socket.on('current_loc', (dloc) => {
+                    console.log(dloc)
                     document.querySelector('#info-bar').innerHTML = `<p class="text-center bold tx-lg b-red p-2 c-white">In Transit <i class="fa fa-truck"></i></p>`;
                     var loc = new Microsoft.Maps.Location(dloc[0], dloc[1]);
-                    userPin = new Microsoft.Maps.Pushpin(loc, { 
-                        icon: '/images/icons8-bus-16.png',
-                        visible: false
-                    });
+                    userPin.geometry.bounds = [dloc[0], dloc[1], dloc[0], dloc[1]]
+                    
                     map.entities.push(userPin);
 
                     //Update the user pushpin.
                     userPin.setLocation(loc);
                     userPin.setOptions({ visible: true });
 
-                    //Center the map on the user's location.
+                    //Center the map on the driver's location.
                     map.setView({ center: loc });
                 });
                 
                 socket.on('package-arrived', (msg) => {
-                    document.querySelector('#info-bar').innerHTML = `<p class="text-center bold tx-lg b-success p-2 c-white">${msg} <i class="fa fa-truck"></i></p>`;
+                    document.querySelector('#info-bar').innerHTML = `<p class="text-center bold tx-lg bg-success p-2 c-white">${msg} <i class="fa fa-truck"></i></p>`;
                 });
             }else{
                 window.location = '/client';
